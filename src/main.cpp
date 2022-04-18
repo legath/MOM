@@ -37,7 +37,7 @@ RFIDdata tag;
 
 void setup() {
   Serial.begin(9600);
-  
+  RFID.begin(9600);
   pinMode(lockPinTop, OUTPUT);
   pinMode(lockPinBottom, OUTPUT);
   
