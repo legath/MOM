@@ -1,7 +1,5 @@
 #include <SoftwareSerial.h>
 #include <HX711.h>
-
-#include <SeeedRFID.h>
 #define sensetivity 100 //чувствительность датчиков веса
 
 #define lockPinTop 9//пин подключения реле верхнего замка
@@ -10,13 +8,10 @@
 #define Reader_TX  7// пин подключения RX RFID
 #define LOADCELL_DOUT_PIN A0//пин подключения DO АЦП
 #define LOADCELL_SCK_PIN A1//пин подключения SCK АЦП
-
-
 #define STRIP_PIN 4     // пин светодиода
 #define NUMLEDS 1      // кол-во светодиодов
 #include <microLED.h>
-byte newCard[] = {};
-byte oldCard[] = {1};
+
 byte count = 0; //счетчик предметов
 char rec; //байт для приема данных
 
@@ -44,6 +39,8 @@ const int CHECKSUM_SIZE = 2; // 2byte checksum
 
 unsigned extract_tag();
 long hexstr_to_value(char *str, unsigned int length);
+
+
 void setup() {
   Serial.begin(9600);
   ssrfid.begin(9600);
@@ -68,6 +65,8 @@ int buffer_index = 0;
 
 
 void loop() {
+
+
   if (ssrfid.available() > 0){
     bool call_extract_tag = false;
     
@@ -83,7 +82,7 @@ void loop() {
     }
 
     if (buffer_index >= BUFFER_SIZE) { // checking for a buffer overflow (It's very unlikely that an buffer overflow comes up!)
-      Serial.println("Error: Buffer overflow detected!");
+      //Serial.println("Error: Buffer overflow detected!");
       return;
     }
     
@@ -91,7 +90,8 @@ void loop() {
 
     if (call_extract_tag == true) {
       if (buffer_index == BUFFER_SIZE) {
-        unsigned tag = extract_tag();
+        Serial.println((char*)(buffer));
+        //unsigned tag = extract_tag();
       } else { // something is wrong... start again looking for preamble (value: 2)
         buffer_index = 0;
         return;
