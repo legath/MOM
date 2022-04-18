@@ -1,6 +1,6 @@
 #include <SoftwareSerial.h>
 #include <HX711.h>
-#define DEBUG
+
 #include <SeeedRFID.h>
 #define sensetivity 100 //чувствительность датчиков веса
 
@@ -32,14 +32,14 @@ unsigned long workTime = 0 ;
 HX711 scale; //подключаем датчики веса
 microLED<NUMLEDS, STRIP_PIN, MLED_NO_CLOCK, LED_WS2812, ORDER_GRB> led; // инициализимруем светодиод
 
-//SoftwareSerial RFID(Reader_RX, Reader_TX);
-SeeedRFID RFID(Reader_RX, Reader_TX);
-RFIDdata tag;
+SoftwareSerial RFID(Reader_RX, Reader_TX);
 
+unsigned char buffer[64];   
+//int count = 0;
 
 void setup() {
   Serial.begin(9600);
-  //RFID.begin(9600);
+  RFID.begin(9600);
   pinMode(lockPinTop, OUTPUT);
   pinMode(lockPinBottom, OUTPUT);
   
@@ -52,24 +52,31 @@ void setup() {
   led.clear();
   led.show(); // вывод изменений на светодиод
 }
-
+void clearBufferArray();
 void loop() {
  
- /* if(RFID.available()>14){
-    for (size_t i = 0; i < 14; i++)
-    {
-      Serial.print((char)RFID.read());
-    }
-    Serial.println(" ");
-    
+    // if date is coming from software serial port ==> data is coming from SoftSerial shield
+	    if (RFID.available())              
+	    {
+	        while(RFID.available())               // reading data into char array
+	        {
+	            buffer[count++] = RFID.read();      // writing data into array
+	            if(count == 64)break;
+	        }
+	        Serial.write(buffer, count);     // if no data transmission ends, write buffer to hardware serial port
+	        clearBufferArray();             // call clearBufferArray function to clear the stored data from the array
+	        count = 0;                      // set counter of while loop to zero
+	    }
+	  
+	}
+	void clearBufferArray()                
+	{
+	    // clear all index of array with command NULL
+	    for (int i=0; i<count; i++)
+	    {
+	        buffer[i]=NULL;
+	    }  
 
-	}*/
 
-
-  if(RFID.isAvailable()){
-    tag = RFID.data();
-    Serial.print("RFID card number: ");
-    Serial.println(RFID.cardNumber());
-    
-  }
+ 
 }
