@@ -1,5 +1,6 @@
 #include <SoftwareSerial.h>
 #include <HX711.h>
+#define DEBUG
 #include <SeeedRFID.h>
 #define sensetivity 100 //чувствительность датчиков веса
 
@@ -31,13 +32,14 @@ unsigned long workTime = 0 ;
 HX711 scale; //подключаем датчики веса
 microLED<NUMLEDS, STRIP_PIN, MLED_NO_CLOCK, LED_WS2812, ORDER_GRB> led; // инициализимруем светодиод
 
-SoftwareSerial RFID(Reader_RX, Reader_TX);
+//SoftwareSerial RFID(Reader_RX, Reader_TX);
+SeeedRFID RFID(Reader_RX, Reader_TX);
 RFIDdata tag;
 
 
 void setup() {
   Serial.begin(9600);
-  RFID.begin(9600);
+  //RFID.begin(9600);
   pinMode(lockPinTop, OUTPUT);
   pinMode(lockPinBottom, OUTPUT);
   
@@ -53,7 +55,7 @@ void setup() {
 
 void loop() {
  
-  if(RFID.available()>14){
+ /* if(RFID.available()>14){
     for (size_t i = 0; i < 14; i++)
     {
       Serial.print((char)RFID.read());
@@ -61,5 +63,13 @@ void loop() {
     Serial.println(" ");
     
 
-	}
+	}*/
+
+
+  if(RFID.isAvailable()){
+    tag = RFID.data();
+    Serial.print("RFID card number: ");
+    Serial.println(RFID.cardNumber());
+    
+  }
 }
