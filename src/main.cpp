@@ -1,12 +1,12 @@
 #include <SoftwareSerial.h>
 #include <HX711.h>
-
+#include <SeeedRFID.h>
 #define sensetivity 100 //чувствительность датчиков веса
 
 #define lockPinTop 9//пин подключения реле верхнего замка
 #define lockPinBottom 2//пин подключения реле нижнего замка
-#define RX  8// пин подключения TX RFID
-#define TX  7// пин подключения RX RFID
+#define Reader_RX  8// пин подключения TX RFID
+#define Reader_TX  7// пин подключения RX RFID
 #define LOADCELL_DOUT_PIN A0//пин подключения DO АЦП
 #define LOADCELL_SCK_PIN A1//пин подключения SCK АЦП
 
@@ -27,16 +27,17 @@ unsigned long weightCheck = 0;
 unsigned long workTime = 0 ;
 
 
-SoftwareSerial RFID(RX, TX);// последовательный порт для RFID
+//SoftwareSerial RFID(RX, TX);// последовательный порт для RFID
 HX711 scale; //подключаем датчики веса
 microLED<NUMLEDS, STRIP_PIN, MLED_NO_CLOCK, LED_WS2812, ORDER_GRB> led; // инициализимруем светодиод
 
-void readCard();
+SeeedRFID RFID(Reader_RX, Reader_TX);
+RFIDdata tag;
 
 
 void setup() {
   Serial.begin(9600);
-  RFID.begin(9600);
+  
   pinMode(lockPinTop, OUTPUT);
   pinMode(lockPinBottom, OUTPUT);
   
@@ -51,10 +52,10 @@ void setup() {
 }
 
 void loop() {
-  double weight = scale.get_value(30);
-  Serial.print("Measured : ");
-  Serial.println(weight);
-
-  delay(5000);
-  
+ 
+  if(RFID.isAvailable()){
+		tag = RFID.data();
+		Serial.print("RFID card number: ");
+		Serial.println(RFID.cardNumber());
+	}
 }
