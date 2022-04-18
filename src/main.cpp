@@ -51,7 +51,7 @@ void setup() {
 }
 
 void loop() {
-  double weight = scale.get_value(10);
+  double weight = scale.get_value(30);
   Serial.print("Measured : ");
   Serial.println(weight);
 
