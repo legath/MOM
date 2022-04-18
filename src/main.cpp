@@ -31,7 +31,7 @@ unsigned long workTime = 0 ;
 HX711 scale; //подключаем датчики веса
 microLED<NUMLEDS, STRIP_PIN, MLED_NO_CLOCK, LED_WS2812, ORDER_GRB> led; // инициализимруем светодиод
 
-SeeedRFID RFID(Reader_RX, Reader_TX);
+SoftwareSerial RFID(Reader_RX, Reader_TX);
 RFIDdata tag;
 
 
@@ -53,9 +53,13 @@ void setup() {
 
 void loop() {
  
-  if(RFID.isAvailable()){
-		tag = RFID.data();
-		Serial.print("RFID card number: ");
-		Serial.println(RFID.cardNumber());
+  if(RFID.available()>0){
+    for (size_t i = 0; i < RFID.available(); i++)
+    {
+      Serial.print(RFID.read());
+    }
+    Serial.println(" ");
+    
+
 	}
 }
