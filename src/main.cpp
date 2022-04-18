@@ -51,14 +51,10 @@ void setup() {
 }
 
 void loop() {
-  led.set(0, mRGB(255, 0, 0));
-  led.show();
-  delay(1000);
-  led.set(0, mRGB(0, 255, 0));
-  led.show();
-  delay(1000);
-  led.set(0, mRGB(0, 0, 255));
-  led.show();
-  delay(1000);
+  double weight = scale.get_value(10);
+  Serial.print("Measured : ");
+  Serial.println(weight);
+
+  delay(5000);
   
 }
