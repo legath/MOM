@@ -53,10 +53,10 @@ void setup() {
 
 void loop() {
  
-  if(RFID.available()>0){
-    for (size_t i = 0; i < RFID.available(); i++)
+  if(RFID.available()>14){
+    for (size_t i = 0; i < 14; i++)
     {
-      Serial.print(RFID.read());
+      Serial.print((char)RFID.read());
     }
     Serial.println(" ");
     
