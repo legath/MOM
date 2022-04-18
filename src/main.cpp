@@ -66,6 +66,7 @@ void loop() {
 	        Serial.write(buffer, count);     // if no data transmission ends, write buffer to hardware serial port
 	        clearBufferArray();             // call clearBufferArray function to clear the stored data from the array
 	        count = 0;                      // set counter of while loop to zero
+          Serial.write("\n");
 	    }
 	  
 	}
