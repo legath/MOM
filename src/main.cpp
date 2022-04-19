@@ -1,6 +1,7 @@
 #include <SoftwareSerial.h>
 #include <HX711.h>
-#define sensetivity 100 //чувствительность датчиков веса
+#include <microLED.h>
+
 
 #define lockPinTop 9//пин подключения реле верхнего замка
 #define lockPinBottom 2//пин подключения реле нижнего замка
@@ -10,46 +11,30 @@
 #define LOADCELL_SCK_PIN A1//пин подключения SCK АЦП
 #define STRIP_PIN 4     // пин светодиода
 #define NUMLEDS 1      // кол-во светодиодов
-#include <microLED.h>
+
+
+const int BUFFER_SIZE = 14; // RFID DATA FRAME FORMAT: 1byte head (value: 2), 10byte data (2byte version + 8byte tag), 2byte checksum, 1byte tail (value: 3)
 
 byte count = 0; //счетчик предметов
-char rec; //байт для приема данных
-
-long weight0 = 0; // переменная для хранения предыдущего измерения веса
-long weight1 = 0; // переменная для хранения предыдущего измерения веса
-long weight2 = 0; // переменная для хранения предыдущего измерения веса
 bool cou = 0; //флаг счетчика инструмента
 unsigned long weightCheck = 0;
 unsigned long workTime = 0 ;
 
-
-
 HX711 scale; //подключаем датчики веса
 microLED<NUMLEDS, STRIP_PIN, MLED_NO_CLOCK, LED_WS2812, ORDER_GRB> led; // инициализимруем светодиод
-
 SoftwareSerial ssrfid(Reader_RX, Reader_TX);
 
 
 
-const int BUFFER_SIZE = 14; // RFID DATA FRAME FORMAT: 1byte head (value: 2), 10byte data (2byte version + 8byte tag), 2byte checksum, 1byte tail (value: 3)
-const int DATA_SIZE = 10; // 10byte data (2byte version + 8byte tag)
-const int DATA_VERSION_SIZE = 2; // 2byte version (actual meaning of these two bytes may vary)
-const int DATA_TAG_SIZE = 8; // 8byte tag
-const int CHECKSUM_SIZE = 2; // 2byte checksum
-
-unsigned extract_tag();
-long hexstr_to_value(char *str, unsigned int length);
-
+uint8_t buffer[BUFFER_SIZE]; // used to store an incoming data frame 
+int buffer_index = 0;
 
 void setup() {
   Serial.begin(9600);
   ssrfid.begin(9600);
   pinMode(lockPinTop, OUTPUT);
   pinMode(lockPinBottom, OUTPUT);
-  
-  
   led.setBrightness(255);//устанавливаем яркость светодиода
-
   scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN); //подключаем АЦП к пинам
   scale.tare();                // устанавливаем значение веса в 0
   Serial.println("Ready");
@@ -58,14 +43,7 @@ void setup() {
 }
 
 
-
-
-uint8_t buffer[BUFFER_SIZE]; // used to store an incoming data frame 
-int buffer_index = 0;
-
-
 void loop() {
-
 
   if (ssrfid.available() > 0){
     bool call_extract_tag = false;
@@ -99,7 +77,7 @@ void loop() {
     }    
   }    
 }
-
+/*
 unsigned extract_tag() {
     uint8_t msg_head = buffer[0];
     uint8_t *msg_data = buffer + 1; // 10 byte => data contains 2byte version + 8byte tag
@@ -166,4 +144,4 @@ long hexstr_to_value(char *str, unsigned int length) { // converts a hexadecimal
   long value = strtol(copy, NULL, 16);  // strtol converts a null-terminated string to a long value
   free(copy); // clean up 
   return value;
-}
+}*/
