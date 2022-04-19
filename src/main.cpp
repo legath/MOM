@@ -1,6 +1,8 @@
 #include <SoftwareSerial.h>
 #include <HX711.h>
 #include <microLED.h>
+ #include <SimpleCLI.h>
+
 
 
 #define lockPinTop 9//пин подключения реле верхнего замка
@@ -24,10 +26,52 @@ HX711 scale; //подключаем датчики веса
 microLED<NUMLEDS, STRIP_PIN, MLED_NO_CLOCK, LED_WS2812, ORDER_GRB> led; // инициализимруем светодиод
 SoftwareSerial ssrfid(Reader_RX, Reader_TX);
 
+SimpleCLI cli;
 
+Command cmdLed;
+Command cmdLock;
+Command cmdWeight;
 
 uint8_t buffer[BUFFER_SIZE]; // used to store an incoming data frame 
 int buffer_index = 0;
+
+
+// Callback in case of an error
+void errorCallback(cmd_error* e) {
+    CommandError cmdError(e); // Create wrapper object
+
+    Serial.print("ERROR: ");
+    Serial.println(cmdError.toString());
+
+}
+
+// Callback function for ping command
+void ledCallback(cmd* c) {
+    Command cmd(c); // Create wrapper object
+
+    // Get arguments
+    
+    Argument strArg    = cmd.getArgument("str");
+    String strValue = strArg.getValue();
+    if (strValue == "red")
+    {
+      led.set(0, mRGB(255, 0, 0));
+      led.show(); 
+    }
+    else if (strValue == "green"){
+      led.set(0, mRGB(0, 255, 0));
+      led.show(); 
+    }
+    else if (strValue == "blue"){
+      led.set(0, mRGB(0, 0, 255));
+      led.show(); 
+    }else{
+      led.clear();
+      led.show();
+    }
+    Serial.println("set_color: done");
+    
+}
 
 void setup() {
   Serial.begin(9600);
@@ -40,11 +84,30 @@ void setup() {
   Serial.println("Ready");
   led.clear();
   led.show(); // вывод изменений на светодиод
+  Serial.flush();
+
+  cli.setOnError(errorCallback);
+
+
+  //cli
+  cmdLed = cli.addCommand("set_color", ledCallback);
+  cmdLed.addPositionalArgument("str", "none");
+
 }
 
 
 void loop() {
+  if (Serial.available()) {
+        // Read out string from the serial monitor
+        String input = Serial.readStringUntil('\n');
 
+        // Echo the user input
+        Serial.print("# ");
+        Serial.println(input);
+
+        // Parse the user input into the CLI
+        cli.parse(input);
+  }
   if (ssrfid.available() > 0){
     bool call_extract_tag = false;
     
