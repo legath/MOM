@@ -1,8 +1,13 @@
 #include <SoftwareSerial.h>
 #include <HX711.h>
 #include <microLED.h>
- #include <SimpleCLI.h>
+#include <SimpleCLI.h>
 
+//FOUND_TAG: 3A00DD8D6208
+//FOUND_TAG: 3A00DD8D6208
+//FOUND_TAG: 3A00DD8D6208
+//FOUND_TAG: 3A00DD8D6208
+//FOUND_TAG: 3A00DEDD340D
 
 
 #define lockPinTop 9//пин подключения реле верхнего замка
@@ -148,6 +153,9 @@ void setup() {
 
   cmdLockBot = cli.addCommand("lock_bot", lock_BOTTOM_Callback);
   cmdLockBot.addPositionalArgument("str", "none");
+
+  cmdWeight= cli.addCommand("weight", weightCallback);
+
 }
 
 
