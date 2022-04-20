@@ -29,7 +29,8 @@ SoftwareSerial ssrfid(Reader_RX, Reader_TX);
 SimpleCLI cli;
 
 Command cmdLed;
-Command cmdLock;
+Command cmdLockTop;
+Command cmdLockBot;
 Command cmdWeight;
 
 uint8_t buffer[BUFFER_SIZE]; // used to store an incoming data frame 
@@ -43,6 +44,55 @@ void errorCallback(cmd_error* e) {
     Serial.print("ERROR: ");
     Serial.println(cmdError.toString());
 
+}
+
+
+void weightCallback(cmd* cmdPtr) {
+    Command cmd(cmdPtr);
+    double weight = scale.get_value(10);
+    Serial.print("WEIGHT: ");
+    Serial.println(weight);
+   
+}
+
+void lock_TOP_Callback(cmd* cmdPtr) {
+    Command cmd(cmdPtr);
+    Argument strArg    = cmd.getArgument("str");
+    String strValue = strArg.getValue();
+    if (strValue == "up")
+    {
+      digitalWrite(lockPinTop, HIGH);
+      Serial.println("top lock up");
+
+    }
+    else if (strValue == "down"){
+      digitalWrite(lockPinTop, LOW);
+      Serial.println("top lock down");
+    
+    }else{
+      Serial.println("top nothing to do");
+    }
+    }
+
+void lock_BOTTOM_Callback(cmd* cmdPtr) {
+    Command cmd(cmdPtr);
+    Argument strArg    = cmd.getArgument("str");
+    String strValue = strArg.getValue();
+    if (strValue == "up")
+    {
+      digitalWrite(lockPinTop, HIGH);
+      Serial.println("bot lock up");
+
+    }
+    else if (strValue == "down"){
+      digitalWrite(lockPinTop, LOW);
+      Serial.println("bot lock down");
+    
+    }else{
+      Serial.println("bot nothing to do");
+    }
+
+    
 }
 
 // Callback function for ping command
@@ -81,7 +131,7 @@ void setup() {
   led.setBrightness(255);//устанавливаем яркость светодиода
   scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN); //подключаем АЦП к пинам
   scale.tare();                // устанавливаем значение веса в 0
-  Serial.println("Ready");
+  Serial.println("READY");
   led.clear();
   led.show(); // вывод изменений на светодиод
   Serial.flush();
@@ -93,6 +143,11 @@ void setup() {
   cmdLed = cli.addCommand("set_color", ledCallback);
   cmdLed.addPositionalArgument("str", "none");
 
+  cmdLockTop = cli.addCommand("lock_top", lock_TOP_Callback);
+  cmdLockTop.addPositionalArgument("str", "none");
+
+  cmdLockBot = cli.addCommand("lock_bot", lock_BOTTOM_Callback);
+  cmdLockBot.addPositionalArgument("str", "none");
 }
 
 
@@ -109,7 +164,7 @@ void loop() {
         cli.parse(input);
   }
   if (ssrfid.available() > 0){
-    bool call_extract_tag = false;
+    bool print_tag = false;
     
     int ssvalue = ssrfid.read(); // read 
     if (ssvalue == -1) { // no data was read
@@ -119,7 +174,7 @@ void loop() {
     if (ssvalue == 2) { // RDM630/RDM6300 found a tag => tag incoming 
       buffer_index = 0;
     } else if (ssvalue == 3) { // tag has been fully transmitted       
-      call_extract_tag = true; // extract tag at the end of the function call
+      print_tag = true; // extract tag at the end of the function call
     }
 
     if (buffer_index >= BUFFER_SIZE) { // checking for a buffer overflow (It's very unlikely that an buffer overflow comes up!)
@@ -129,8 +184,9 @@ void loop() {
     
     buffer[buffer_index++] = ssvalue; // everything is alright => copy current value to buffer
 
-    if (call_extract_tag == true) {
+    if (print_tag == true) {
       if (buffer_index == BUFFER_SIZE) {
+        Serial.print("FOUND_TAG: ");
         Serial.println((char*)(buffer));
         //unsigned tag = extract_tag();
       } else { // something is wrong... start again looking for preamble (value: 2)
@@ -140,71 +196,3 @@ void loop() {
     }    
   }    
 }
-/*
-unsigned extract_tag() {
-    uint8_t msg_head = buffer[0];
-    uint8_t *msg_data = buffer + 1; // 10 byte => data contains 2byte version + 8byte tag
-    uint8_t *msg_data_version = msg_data;
-    uint8_t *msg_data_tag = msg_data + 2;
-    uint8_t *msg_checksum = buffer + 11; // 2 byte
-    uint8_t msg_tail = buffer[13];
-
-    // print message that was sent from RDM630/RDM6300
-    Serial.println("--------");
-
-    Serial.print("Message-Head: ");
-    Serial.println(msg_head);
-
-    Serial.println("Message-Data (HEX): ");
-    for (int i = 0; i < DATA_VERSION_SIZE; ++i) {
-      Serial.print(char(msg_data_version[i]));
-    }
-    Serial.println(" (version)");
-    for (int i = 0; i < DATA_TAG_SIZE; ++i) {
-      Serial.print(char(msg_data_tag[i]));
-    }
-    Serial.println(" (tag)");
-
-    Serial.print("Message-Checksum (HEX): ");
-    for (int i = 0; i < CHECKSUM_SIZE; ++i) {
-      Serial.print(char(msg_checksum[i]));
-    }
-    Serial.println("");
-
-    Serial.print("Message-Tail: ");
-    Serial.println(msg_tail);
-
-    Serial.println("--");
-
-    long tag = hexstr_to_value(msg_data_tag, DATA_TAG_SIZE);
-    Serial.print("Extracted Tag: ");
-    Serial.println(tag);
-
-    long checksum = 0;
-    for (int i = 0; i < DATA_SIZE; i+= CHECKSUM_SIZE) {
-      long val = hexstr_to_value(msg_data + i, CHECKSUM_SIZE);
-      checksum ^= val;
-    }
-    Serial.print("Extracted Checksum (HEX): ");
-    Serial.print(checksum, HEX);
-    if (checksum == hexstr_to_value(msg_checksum, CHECKSUM_SIZE)) { // compare calculated checksum to retrieved checksum
-      Serial.print(" (OK)"); // calculated checksum corresponds to transmitted checksum!
-    } else {
-      Serial.print(" (NOT OK)"); // checksums do not match
-    }
-
-    Serial.println("");
-    Serial.println("--------");
-
-    return tag;
-}
-
-long hexstr_to_value(char *str, unsigned int length) { // converts a hexadecimal value (encoded as ASCII string) to a numeric value
-  char* copy = malloc((sizeof(char) * length) + 1); 
-  memcpy(copy, str, sizeof(char) * length);
-  copy[length] = '\0'; 
-  // the variable "copy" is a copy of the parameter "str". "copy" has an additional '\0' element to make sure that "str" is null-terminated.
-  long value = strtol(copy, NULL, 16);  // strtol converts a null-terminated string to a long value
-  free(copy); // clean up 
-  return value;
-}*/
