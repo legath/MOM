@@ -80,12 +80,12 @@ void lock_BOTTOM_Callback(cmd* cmdPtr) {
     String strValue = strArg.getValue();
     if (strValue == "up")
     {
-      digitalWrite(lockPinTop, HIGH);
+      digitalWrite(lockPinBottom, HIGH);
       Serial.println("bot lock up");
 
     }
     else if (strValue == "down"){
-      digitalWrite(lockPinTop, LOW);
+      digitalWrite(lockPinBottom, LOW);
       Serial.println("bot lock down");
     
     }else{
