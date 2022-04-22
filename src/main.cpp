@@ -41,6 +41,11 @@ Command cmdWeight;
 uint8_t buffer[BUFFER_SIZE]; // used to store an incoming data frame 
 int buffer_index = 0;
 
+uint32_t one_shot_was1=0;
+uint32_t one_shot_was2 =0;
+
+bool check_oneshot1=false;
+bool check_oneshot2=false;
 
 // Callback in case of an error
 void errorCallback(cmd_error* e) {
@@ -67,14 +72,12 @@ void lock_TOP_Callback(cmd* cmdPtr) {
     if (strValue == "up")
     {
       digitalWrite(lockPinTop, HIGH);
+      check_oneshot1=true;
+      one_shot_was1=millis();
       //Serial.println("top lock up");
 
     }
-    else if (strValue == "down"){
-      digitalWrite(lockPinTop, LOW);
-      //Serial.println("top lock down");
-    
-    }else{
+    else{
       //Serial.println("top nothing to do");
     }
     }
@@ -86,14 +89,12 @@ void lock_BOTTOM_Callback(cmd* cmdPtr) {
     if (strValue == "up")
     {
       digitalWrite(lockPinBottom, HIGH);
+      check_oneshot2 = true;
+      one_shot_was2 = millis();
       //Serial.println("bot lock up");
 
     }
-    else if (strValue == "down"){
-      digitalWrite(lockPinBottom, LOW);
-      //Serial.println("bot lock down");
-    
-    }else{
+    else{
       //Serial.println("bot nothing to do");
     }
 
@@ -160,6 +161,21 @@ void setup() {
 
 
 void loop() {
+  if(check_oneshot1){
+    if(millis()>= one_shot_was1 + 10000) //10 секунд
+    {
+      check_oneshot1 = false;
+      digitalWrite(lockPinTop, LOW);
+    }
+  }
+  if(check_oneshot2){
+    if(millis()>= one_shot_was2 + 10000) //10 секунд
+    {
+      check_oneshot2 = false;
+      digitalWrite(lockPinBottom, LOW);
+    }
+  }
+
   if (Serial.available()) {
         // Read out string from the serial monitor
         String input = Serial.readStringUntil('\n');
