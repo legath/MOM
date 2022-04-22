@@ -46,8 +46,8 @@ int buffer_index = 0;
 void errorCallback(cmd_error* e) {
     CommandError cmdError(e); // Create wrapper object
 
-    Serial.print("ERROR: ");
-    Serial.println(cmdError.toString());
+    //Serial.print("ERROR: ");
+    //Serial.println(cmdError.toString());
 
 }
 
@@ -55,7 +55,7 @@ void errorCallback(cmd_error* e) {
 void weightCallback(cmd* cmdPtr) {
     Command cmd(cmdPtr);
     double weight = scale.get_value(10);
-    Serial.print("WEIGHT: ");
+    Serial.print("WEIGHT:");
     Serial.println(weight);
    
 }
@@ -67,15 +67,15 @@ void lock_TOP_Callback(cmd* cmdPtr) {
     if (strValue == "up")
     {
       digitalWrite(lockPinTop, HIGH);
-      Serial.println("top lock up");
+      //Serial.println("top lock up");
 
     }
     else if (strValue == "down"){
       digitalWrite(lockPinTop, LOW);
-      Serial.println("top lock down");
+      //Serial.println("top lock down");
     
     }else{
-      Serial.println("top nothing to do");
+      //Serial.println("top nothing to do");
     }
     }
 
@@ -86,15 +86,15 @@ void lock_BOTTOM_Callback(cmd* cmdPtr) {
     if (strValue == "up")
     {
       digitalWrite(lockPinBottom, HIGH);
-      Serial.println("bot lock up");
+      //Serial.println("bot lock up");
 
     }
     else if (strValue == "down"){
       digitalWrite(lockPinBottom, LOW);
-      Serial.println("bot lock down");
+      //Serial.println("bot lock down");
     
     }else{
-      Serial.println("bot nothing to do");
+      //Serial.println("bot nothing to do");
     }
 
     
@@ -124,7 +124,7 @@ void ledCallback(cmd* c) {
       led.clear();
       led.show();
     }
-    Serial.println("set_color: done");
+    //Serial.println("set_color: done");
     
 }
 
@@ -165,8 +165,8 @@ void loop() {
         String input = Serial.readStringUntil('\n');
 
         // Echo the user input
-        Serial.print("# ");
-        Serial.println(input);
+        //Serial.print("# ");
+        //Serial.println(input);
 
         // Parse the user input into the CLI
         cli.parse(input);
