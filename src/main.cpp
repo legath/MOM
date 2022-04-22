@@ -212,7 +212,7 @@ void loop() {
       if (buffer_index == BUFFER_SIZE) {
         Serial.print("FOUND_TAG:");
         for (int i = 0 ; i< BUFFER_SIZE; i++){
-          Serial.print(buffer[i], HEX);
+          Serial.print((char)buffer[i]);
         }
         Serial.print('\n');
         //unsigned tag = extract_tag();
