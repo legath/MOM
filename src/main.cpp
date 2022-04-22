@@ -125,7 +125,7 @@ void ledCallback(cmd* c) {
       led.clear();
       led.show();
     }
-    //Serial.println("set_color: done");
+    Serial.println("set_color: done");
     
 }
 
