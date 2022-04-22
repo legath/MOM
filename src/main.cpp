@@ -162,7 +162,7 @@ void setup() {
 
 void loop() {
   if(check_oneshot1){
-    if(millis()>= one_shot_was1 + 10000) //10 секунд
+    if(millis()>= one_shot_was1 + 1000) //1 секунда
     {
       check_oneshot1 = false;
       digitalWrite(lockPinTop, LOW);
