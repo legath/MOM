@@ -250,15 +250,16 @@ void extract_tag() {
         Serial.print(char(msg_data_version[i]));
     }
     /*Serial.println(" (version)");
-    for (int i = 0; i < DATA_TAG_SIZE; ++i) {
+    */for (int i = 0; i < DATA_TAG_SIZE; ++i) {
         Serial.print(char(msg_data_tag[i]));
-    }
+    }/*
     Serial.println(" (tag)");
 
     Serial.print("Message-Checksum (HEX): ");
+    */
     for (int i = 0; i < CHECKSUM_SIZE; ++i) {
         Serial.print(char(msg_checksum[i]));
-    }
+    }/*
     Serial.println("");
 
     Serial.print("Message-Tail: ");
