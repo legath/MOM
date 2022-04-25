@@ -50,6 +50,8 @@ uint32_t one_shot_was2 =0;
 bool check_oneshot1=false;
 bool check_oneshot2=false;
 
+void extract_tag();
+
 // Callback in case of an error
 void errorCallback(cmd_error* e) {
     CommandError cmdError(e); // Create wrapper object
